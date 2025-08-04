@@ -1,0 +1,70 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="col-md-8 offset-md-2">
+  {% if user.is_authenticated %}
+    <!-- DASHBOARD FOR LOGGED IN USERS -->
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0 text-center">
+                        {% if is_admin %}
+                            GS Lab Allocation System - Admin Portal
+                        {% else %}
+                            Welcome to GS Lab Allocation System
+                        {% endif %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title text-center mb-4">
+                        {% if is_admin %}
+                            Allocation Process Steps
+                        {% endif %}
+                    </h5>
+                    
+                    <div class="list-group">
+                        {% for title, url, description in steps %}
+                        <a href="{% url url %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ title }}</h6>
+                            </div>
+                            <p class="mb-1">{{ description }}</p>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  {% else %}
+  <h1>Login</h1>
+  <br />
+  <form method="POST" action="{% url 'home'%}">
+    {% csrf_token %}
+    <form>
+      <div class="mb-3">
+        <input
+          type="text"
+          class="form-control"
+          name="username"
+          placeholder="Username"
+          required
+        />
+      </div>
+      <br />
+      <div class="mb-3">
+        <input
+          type="password"
+          class="form-control"
+          name="password"
+          placeholder="Password"
+          required
+        />
+      </div>
+      <br />
+      <button type="submit" class="btn btn-secondary">Login</button>
+    </form>
+  </form>
+</div>
+
+{% endif %} {% endblock %}

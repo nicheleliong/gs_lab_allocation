@@ -1,0 +1,91 @@
+{% load has_group %}
+
+<nav class="navbar navbar-expand-lg bg-body-secondary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{% url 'home' %}">GS Lab Allocation</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        {%if user.is_authenticated%}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+          </li>
+          {%if request.user|has_group:"Admin"%}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Student Management
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'view_students' %}">Students Overview</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'register_student' %}">Register New Student</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Course Management
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'view_courses' %}">Course Overview</a></li>
+                <li><a class="dropdown-item" href="{% url 'add_course' %}">Add New Course</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'add_labs' %}">Add Lab Information</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Lab Allocation
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'allocation_dashboard' %}">Lab Allocation Dashboard</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'view_special_requests' %}">View All Special Requests</a></li>
+              </ul>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="{% url 'semester_reset' %}">Semester Reset & Communication Tools</a>
+          </li>
+          {%endif%}
+          {%if request.user|has_group:"Student"%}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'profile' %}">Profile & Settings</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Indicate Teaching Preferences
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'semester_info' %}">Declare Semester Information</a></li>
+                <li><a class="dropdown-item" href="{% url 'teaching_preference' %}">Indicate Teaching Preference</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'special_request' %}">Submit Special Request</a></li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'view_allocations' %}">View Your Lab Allocations</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'contact_student' %}">Contact Another Student</a>
+            </li>
+
+          {%endif%}
+          {%else%}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'home' %}">Login</a>
+          </li>
+        {%endif%}
+      </ul>
+    </div>
+  </div>
+</nav>
+<br/>

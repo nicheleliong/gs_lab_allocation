@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form method="POST">
+<div class="container">
+    <br/>
+    <h2>Edit Course Details</h2>
+    <br/>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>Course Information</h4>
+        </div>
+        <div class="card-body">
+                {% csrf_token %}
+                {% if form_errors %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ form_errors }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Course Code:</label>
+                    <div class="col-md-8">
+                        {{ form.code }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Course Title:</label>
+                    <div class="col-md-8">
+                        {{ form.title }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Year:</label>
+                    <div class="col-md-8">
+                        {{ form.year }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Lab Category:</label>
+                    <div class="col-md-8">
+                        {{ form.lab_cat }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Hours:</label>
+                    <div class="col-md-8">
+                        {{ form.hours }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Weeks:</label>
+                    <div class="col-md-8">
+                        {{ form.weeks }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">
+                        Manual Group Count (optional):
+                        <br>
+                        <small class="text-muted">Leave blank to auto-calculate from labs. Fill to override.</small>
+                    </label>
+                    <div class="col-md-8">
+                        {{ form.manual_grp_count }}
+                    </div>
+                </div>
+                                
+                <hr>
+            
+        </div>
+    </div>
+</div>
+<hr>
+
+<h4>Lab Information</h4>
+
+<div class="table-responsive">
+<table class="table table-bordered align-middle">
+    <thead>
+        <tr>
+            <th>Group</th>
+            <th>Day</th>
+            <th>Time</th>
+            <th>Venue</th>
+            <th>Teaching Week</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{ lab_formset.management_form }}
+        {% for form in lab_formset %}
+        <tr>
+            {{ form.id }}
+            <td>{{ form.group }}</td>
+            <td>{{ form.day }}</td>
+            <td>{{ form.time }}</td>
+            <td>{{ form.venue }}</td>
+            <td>
+                {{ form.teaching_week }}
+                {% if form.teaching_week.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.teaching_week.errors }}
+                    </div>
+                {% endif %}
+            </td>
+            <!-- Style the DELETE checkbox as a button -->
+            <td>
+                <label class="btn btn-danger btn-sm">
+                    Delete {{ form.DELETE }}
+                </label>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+<button type="submit" name="update_course" class="btn btn-success">Update Course Details</button>
+<a href="{% url 'view_courses' %}" class="btn btn-secondary">Back</a>
+</form>
+<br/>
+{% endblock %}

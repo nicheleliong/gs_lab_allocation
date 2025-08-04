@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+
+    <!-- Profile Information Card -->
+    <div class="card">
+        <div class="card">
+        <div class="card-header">
+            <h5>Your Profile</h5>
+        </div>
+        
+        <div class="card-body">
+            <h5 class="card-title">Account Information</h5>
+            <br/>
+            <div class="row">
+                <div class="col-md-4 text-dark">Username</div>
+                <div class="col-md-8 text-secondary">{{student.user.username}}</div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 text-dark">First Name</div>
+                <div class="col-md-8 text-secondary">{{student.user.first_name}}</div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 text-dark">Last Name</div>
+                <div class="col-md-8 text-secondary">{{student.user.last_name}}</div>
+            </div>
+           
+            <div class="row">
+                <div class="col-md-4 text-dark">Email</div>
+                <div class="col-md-8 text-secondary">{{student.email}}</div>
+            </div>
+            
+            <hr>
+            <h5 class="card-title">Student Information</h5>
+            <br/>
+            <div class="row">
+                <div class="col-md-4 text-dark">CCDS PhD Supervisor</div>
+                <div class="col-md-8 text-secondary">
+                    {% if student.supervisor == "Not Set" %}
+                        <span class="text-muted">Not set</span>
+                    {% else %}
+                        {{student.supervisor}}
+                    {% endif %}
+                </div>
+            </div>
+           
+            <div class="row">
+                <div class="col-md-4 text-dark">Bachelor Degree</div>
+                <div class="col-md-8 text-secondary">
+                    {% if student.bachelor_degree == "Not Set" %}
+                        <span class="text-muted">Not set</span>
+                    {% else %}
+                        {{student.bachelor_degree}}
+                    {% endif %}
+                </div>
+            </div>
+           
+            <div class="row">
+                <div class="col-md-4 text-dark">Matriculation Date</div>
+                <div class="col-md-8 text-secondary">
+                    {% if student.matriculation_date == "Not Set" %}
+                        <span class="text-muted">Not set</span>
+                    {% else %}
+                        {{student.matriculation_date}}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <br/>
+    <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+<br/>
+{% endblock %}

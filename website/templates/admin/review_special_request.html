@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <br/>
+    <h2>Review Special Request</h2>
+    <br/>
+
+    <!-- Student Information Card -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Student Information</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Student:</strong> {{ student.user.username }}</p>
+                    <p><strong>Email:</strong> {{ student.user.email }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Submitted:</strong> {{ special_request.reviewed_at|default:"Not yet reviewed" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Lock Information -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Course Lock Request</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <p><strong>Course:</strong> {% if special_request.course_lock %}{{ special_request.course_lock.code }}{% else %}None{% endif %}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Labs Locked:</strong> {{ special_request.lab_groups_locked|default:"0" }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Faculty Contact:</strong> {{ special_request.faculty_contact|default:"None" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Constraints -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Time Constraints</h4>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <p><strong>Maximum Teaching Days:</strong> {{ special_request.max_teaching_days }}/5</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <p><strong>Unavailable Slots:</strong></p>
+                    <div class="container">
+                        <div class="row">
+                            <!-- AM slots -->
+                            {% for slot in am_slots %}
+                                <div class="col">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" disabled
+                                            {% if slot in special_request.unavailable_slots %} checked {% endif %}>
+                                        <label class="form-check-label">{{ slot }}</label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="row mt-2">
+                            <!-- PM slots -->
+                            {% for slot in pm_slots %}
+                                <div class="col">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" disabled
+                                            {% if slot in special_request.unavailable_slots %} checked {% endif %}>
+                                        <label class="form-check-label">{{ slot }}</label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <p><strong>Justification:</strong></p>
+                    <div class="p-3 bg-light rounded">
+                        {% if special_request.justification %}
+                            {{ special_request.justification }}
+                        {% else %}
+                            <em>No justification provided</em>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approval Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Admin Review</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="course_lock_approved" name="course_lock_approved" 
+                                {% if special_request.course_lock_approved %}checked{% endif %}>
+                            <label class="form-check-label" for="course_lock_approved">
+                                <strong>Approve Course Lock Request</strong>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="availability_approved" name="availability_approved" 
+                                {% if special_request.availability_approved %}checked{% endif %}>
+                            <label class="form-check-label" for="availability_approved">
+                                <strong>Approve Time Constraints</strong>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="admin_comments" class="form-label"><strong>Admin Comments:</strong></label>
+                        {{ form.admin_comments }}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                        <a href="{% url 'view_special_requests' %}" class="btn btn-secondary">Back to List</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

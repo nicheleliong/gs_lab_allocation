@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <br/>
+    <h2>Manage Student Special Requests</h2>
+    <br/>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>Special Requests</h4>
+        </div>
+        <div class="card-body">
+            {% if special_requests %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Course Lock Request</th>
+                            <th>Time Constraints</th>
+                            <th>Review Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in special_requests %}
+                        <tr>
+                            <td>{{ req.student.name }}</td>
+                            <td>{% if req.course_lock %}{{ req.course_lock.code }}{% else %}N/A{% endif %}</td>
+                            <td>
+                                {% if req.unavailable_slots or req.max_teaching_days < 5 %}
+                                    <span class="text-danger">Yes</span>
+                                {% else %}
+                                    <span class="text-secondary">No</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if req.reviewed_at %}
+                                    <span class="badge bg-success">Reviewed</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center border-start">
+                                <a href="{% url 'review_special_request' req.id %}" class="btn btn-primary btn-sm">Review</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                No special requests have been submitted yet.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <br/>
+    <a href="{% url 'home' %}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}

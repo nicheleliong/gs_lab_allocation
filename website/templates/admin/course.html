@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    
+    <!-- Course Information Card -->
+    <div class="card">
+        <div class="card-header">
+            <h5>Course Details</h5>
+        </div>
+        
+        <div class="card-body">
+            <h5 class="card-title">Course Information</h5>
+            <br/>
+            <div class="row">
+                <div class="col-md-4 text-dark">Course Code</div>
+                <div class="col-md-8 text-secondary">{{ course.code }}</div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 text-dark">Course Title</div>
+                <div class="col-md-8 text-secondary">{{ course.title }}</div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-4 text-dark">Year</div>
+                <div class="col-md-8 text-secondary">{{ course.year }}</div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 text-dark">Lab Category</div>
+                <div class="col-md-8 text-secondary">{{ course.lab_cat }}</div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 text-dark">Hours</div>
+                <div class="col-md-8 text-secondary">{{ course.hours }}</div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 text-dark">Weeks</div>
+                <div class="col-md-8 text-secondary">{{ course.weeks }}</div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-4 text-dark">Total No. of Groups</div>
+                <div class="col-md-8 text-secondary">{{ course.grp_count|default:"N/A" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!--Lab Groups Information-->
+    <div class="container mt-4">
+        <h5>Lab Groups</h5>
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Group</th>
+                    <th>Day</th>
+                    <th>Time</th>
+                    <th>Venue</th>
+                    <th>Teaching Weeks</th>
+                    <th>Assigned</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lab in labs %}
+                    <tr>
+                        <td>{{ lab.group }}</td>
+                        <td>{{ lab.day }}</td>
+                        <td>{{ lab.time }}</td>
+                        <td>{{ lab.venue }}</td>
+                        <td>
+                            {% if lab.teaching_week %}
+                                {{ lab.teaching_week|join:", " }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>{% if lab.assigned %}Yes{% else %}<span class="text-danger">No</span>{% endif %}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No Labs available for this course.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+</div>
+
+<br/>
+<a href="{% url 'edit_course' course.new_code %}" class="btn btn-primary">Edit</a>
+<a href="{%url 'delete_course' course.new_code %}" class="btn btn-danger">Delete</a>
+<a href="{%url 'view_courses'%}" class="btn btn-secondary">Back</a>
+
+<br/>
+{% endblock %}

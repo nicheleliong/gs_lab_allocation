@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <br/>
+    <h2>Add New Course</h2>
+    <br/>
+    
+    <div class="card">
+        <div class="card-header">
+            <h4>Course Details</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    Please correct the errors below.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Course Code:</label>
+                    <div class="col-md-8">
+                        {{ form.code }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Course Title:</label>
+                    <div class="col-md-8">
+                        {{ form.title }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Year:</label>
+                    <div class="col-md-8">
+                        {{ form.year }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Lab Category:</label>
+                    <div class="col-md-8">
+                        {{ form.lab_cat }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Hours:</label>
+                    <div class="col-md-8">
+                        {{ form.hours }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Weeks:</label>
+                    <div class="col-md-8">
+                        {{ form.weeks }}
+                    </div>
+                </div>
+                <hr>
+                <button type="submit" class="btn btn-success">Add Course</button>
+                <a href="{% url 'view_courses' %}" class="btn btn-secondary">Back</a>
+            </form>
+        </div>
+    </div>
+</div>
+<br/>
+{% endblock %}

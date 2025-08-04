@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <br/>
+    <h2>Semester Preparation Dashboard</h2>
+    <br/>
+    
+    <!-- Send Email to All Students -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Send Email to All Students</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row mb-3">
+                    <label class="col-md-2 col-form-label">Subject:</label>
+                    <div class="col-md-10">
+                        <input type="text" name="subject" class="form-control" required>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <label class="col-md-2 col-form-label">Message:</label>
+                    <div class="col-md-10">
+                        <textarea name="message" rows="5" class="form-control" required></textarea>
+                    </div>
+                </div>
+                
+                <hr>
+                <button type="submit" name="send_all" class="btn btn-primary">Send to All Students</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Send Email to Selected Students -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Send Email to Selected Students</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row mb-3">
+                    <label class="col-md-2 col-form-label">Subject:</label>
+                    <div class="col-md-10">
+                        <input type="text" name="subject" class="form-control" required>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <label class="col-md-2 col-form-label">Message:</label>
+                    <div class="col-md-10">
+                        <textarea name="message" rows="5" class="form-control" required></textarea>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <label class="col-md-2 col-form-label">Select Students:</label>
+                    <div class="col-md-10">
+                        <select name="selected_students" class="selectpicker form-control" multiple data-live-search="true" title="Select students" required>
+                            {% for student in students %}
+                                <option value="{{ student.user.username }}">{{ student.name }} ({{ student.email }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <hr>
+                <button type="submit" name="send_selected" class="btn btn-primary">Send to Selected Students</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Reset Database -->
+    <div class="card mb-4">
+        <div class="card-header bg-danger text-white">
+            <h4>Reset Database</h4>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <strong>Warning!</strong> This action will delete all records from SpecialRequest, TeachingPreferences, Assignment, and clear Student past assignments. This action cannot be undone.
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Type 'CONFIRM' to proceed:</label>
+                    <div class="col-md-8">
+                        <input type="text" name="confirmation" class="form-control" required>
+                    </div>
+                </div>
+                
+                <hr>
+                <button type="submit" name="reset_database" class="btn btn-danger">Reset Database</button>
+            </form>
+        </div>
+    </div>
+</div>
+<br/>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        $('.selectpicker').selectpicker();
+    });
+</script>
+{% endblock %}

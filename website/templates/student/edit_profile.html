@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <br/>
+    <h2>Profile & Settings</h2>
+    <br/>
+
+    <!-- Change Password Card -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Change Password</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                {% if password_form.errors %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    Password Change Errors
+                    {% for field in password_form %}
+                        {% if field.errors %}
+                            {{ field.errors }}
+                        {% endif %}
+                    {% endfor %}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Current Password:</label>
+                    <div class="col-md-8">
+                        {{ password_form.old_password }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">New Password:</label>
+                    <div class="col-md-8">
+                        {{ password_form.new_password1 }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Confirm New Password:</label>
+                    <div class="col-md-8">
+                        {{ password_form.new_password2 }}
+                    </div>
+                </div>
+                <hr>
+                <button type="submit" name="change_password" class="btn btn-success">Update Password</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Information Card -->
+    <div class="card">
+        <div class="card-header">
+            <h4>Profile Information</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                {% if form_errors %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ form_errors }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+
+                <h5>Account Details</h5>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Username:</label>
+                    <div class="col-md-8">
+                        {{ user_form.username }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">First Name:</label>
+                    <div class="col-md-8">
+                        {{ user_form.first_name }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Last Name:</label>
+                    <div class="col-md-8">
+                        {{ user_form.last_name }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Email:</label>
+                    <div class="col-md-8">
+                        {{ user_form.email }}
+                    </div>
+                </div>
+
+                <hr>
+                <h5>Student Information</h5>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">CCDS PhD Supervisor:</label>
+                    <div class="col-md-8">
+                        {{ profile_form.supervisor }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Bachelor Degree (include specialisation, if any):</label>
+                    <div class="col-md-8">
+                        {{ profile_form.bachelor_degree }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Matriculation Date:</label>
+                    <div class="col-md-8">
+                        {{ profile_form.matriculation_date }}
+                    </div>
+                </div>
+            
+            </div>
+        </div>
+        <br/>
+        <button type="submit" name="update_profile" class="btn btn-success">Save Profile</button>
+        <a href="{% url 'profile' %}" class="btn btn-secondary">Back</a>
+    </form>
+</div>
+<br/>
+{% endblock %}

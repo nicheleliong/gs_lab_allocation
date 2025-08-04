@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Info Card -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h4>Teaching Preferences for Lab Group Allocation</h4>
+    </div>
+    <div class="card-body">
+        <p class="card-text">
+            Please rank your preferred courses by inserting a digit (1-8) into the corresponding adjacent boxes.
+            <ul>
+                <li><strong>1:</strong> Most Preferred</li>
+                <li><strong>8:</strong> Least Preferred</li>
+            </ul>
+            You may leave courses blank if you do not wish to teach them.
+        </p>
+        <p class="card-text">
+            <h5>Important:</h5>
+        </p>
+        <p class="card-text">
+            You may assign the same ranking for up to <strong>2 courses</strong> if you have no preference between them.
+        </p>
+        <p class="card-text">
+            Please indicate your ranking for <strong>at least 3 courses</strong> for each year category.
+        </p>
+        <hr>
+        <p class="card-text text-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+        </svg>
+         The final allocation of courses will not necessarily be restricted to your choices, especially if your choices are limited to popular courses.
+        </p>
+    </div>
+</div>
+
+<!-- Teaching Preference Form -->
+<div class="card">
+    <div class="card-header">
+        <h4>Submit Teaching Preferences</h4>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            {% csrf_token %}
+
+            {% if form.errors %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    Please correct the errors below.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger p-2 m-0">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+
+            <br/>
+            <div class="row mb-3">
+                <label class="col-md-9 col-form-label"><strong>Course Code</strong></label>
+                <label class="col-md-3 col-form-label"><strong>Preference Ranking</strong></label>
+            </div>
+
+            {% for year in "123" %}
+                    <h4 class="mt-4">Year {{ year }}</h4>
+                    <hr>
+                    <div class="row">
+                        {% for field in form %}
+                            {% if field.field.year|stringformat:"s" == year %}
+                                <div class="row align-items-center mb-3">
+                                    <div class="col-md-3 fw-bold">
+                                        {{ field.field.course.code }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ field.field.course.title }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        {{ field }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+            <hr>
+            <button type="submit" class="btn btn-primary">Submit Preferences</button>
+            <a href="{% url 'home' %}" class="btn btn-secondary">Back</a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

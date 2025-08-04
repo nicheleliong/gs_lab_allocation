@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h2>Edit Assignments</h2>
+    
+    <form method="get" class="mb-4">
+        <div class="form-group">
+            <label for="course">Select Course:</label>
+            <select name="course" id="course" class="form-control" onchange="this.form.submit()">
+                <option value="">-- Select a course --</option>
+                {% for course in courses %}
+                <option value="{{ course.code }}" {% if selected_course.code == course.code %}selected{% endif %}>
+                    {{ course.code }} - {{ course.title }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+    
+    {% if selected_course %}
+    <!-- Display messages -->
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <form method="post" action="{% url 'save_assignments' %}" id="assignment-form">
+        {% csrf_token %}
+        <input type="hidden" name="course_code" value="{{ selected_course.code }}">
+        
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Lab Group</th>
+                        <th>Day</th>
+                        <th>Time</th>
+                        <th>Venue</th>
+                        <th>Teaching Weeks</th>
+                        <th>Student</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for group in grouped_assignments %}
+                    <tr>
+                        <td>{{ group.group }}</td>
+                        <td>
+                            {% for slot in group.time_slots %}
+                            <div>{{ slot.day }}</div>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for slot in group.time_slots %}
+                            <div>{{ slot.time }}</div>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for slot in group.time_slots %}
+                            <div>{{ slot.venue }}</div>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for slot in group.time_slots %}
+                            <div>{{ slot.teaching_weeks|join:", " }}</div>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <select name="student_{{ group.first_lab_id }}" class="form-control">
+                                <option value="">-- Unassigned --</option>
+                                {% for student in eligible_students %}
+                                <option value="{{ student.user.id }}" 
+                                        {% if group.student == student %}selected{% endif %}>
+                                    {{ student.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <input type="checkbox" name="delete_{{ group.first_lab_id }}" class="delete-checkbox">
+                            <label>Delete</label>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="form-group mt-4">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'allocation_dashboard' %}" class="btn btn-outline-secondary ms-2">Back to Dashboard</a>
+        </div>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <!--PSA-->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Special Requests for Lab Allocation</h4>
+        </div>
+        <div class="card-body">
+            <p class="card-text">
+            This form is for students who have <strong>exceptional circumstances</strong> that must be considered during lab group allocation. 
+            </p>
+            <p class="card-text">
+            You may submit requests under these categories:
+            </p>
+            <ul>
+            <li><strong>Course Lock Requests</strong>: If you have agreed with a faculty member to take a specific number of lab groups for a particular course.</li>
+            <li><strong>Unavailable Time Slots</strong>: Select up to 8 unavailable blocks (e.g., "Mon-AM", "Wed-PM"). You must leave at least 2 blocks available.</li>
+            <li><strong>Assignment Day Limit</strong>: Specify the maximum number of days (1–5) you wish to teach per week. Default is 5.</li>
+            </ul>
+            <p class="card-text">
+            <strong>Note:</strong> If you indicate unavailable times or limit days, you <strong>must provide a justification</strong> for admin review. Without a valid reason, requests may be rejected.
+            </p>
+            <p class="card-text text-danger">
+            ⚠️ Please use this form responsibly to avoid delays in the allocation process.
+            </p>
+        </div>
+    </div>
+
+    <!--Special Request Form-->
+    <div class="card">
+        <div class="card-header">
+            <h4>Special Requests</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    Please correct the errors below.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger p-2 m-0">
+                        {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <br/>
+                <h4>Course Lock Request</h4>
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label"><br/><strong>Course Code</strong></label>
+                    <div class="col-md-8">
+                        {{ form.course_lock }}
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-md-6 col-form-label"><strong>No. of lab groups to lock </strong></label>
+                    <label class="col-md-6 col-form-label"><strong>Faculty Member</strong></label>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form.lab_groups_locked }}
+                        {% if form.lab_groups_locked.errors %}
+                            <div class="text-danger">{{ form.lab_groups_locked.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.faculty_contact }}
+                        {% if form.faculty_contact.errors %}
+                            <div class="text-danger">{{ form.faculty_contact.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr>
+
+                <h4>Time Constraints</h4>
+                <div class="row mb-3">
+                    <label class="col-md-8 col-form-label">
+                      <strong>Unavailable on:</strong><br><i>(Max. selections allowed: 8) </i>
+                    </label>
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <!-- First row: AM slots -->
+                        {% for slot in am_slots %}
+                            <div class="col">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="unavailable_slots" value="{{ slot }}" id="{{ slot }}"
+                                        {% if slot in selected_slots %} checked {% endif %}>
+                                    <label class="form-check-label" for="slot-{{ slot }}">
+                                        {{ slot }}
+                                    </label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="row mt-2">
+                        <!-- Second row: PM slots -->
+                        {% for slot in pm_slots %}
+                            <div class="col">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="unavailable_slots" value="{{ slot }}" id="{{ slot }}"
+                                        {% if slot in selected_slots %} checked {% endif %}>
+                                    <label class="form-check-label" for="slot-{{ slot }}">
+                                        {{ slot }}
+                                    </label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-md-8 col-form-label">
+                      <strong>Maximum no. of days per week</strong> <i>(Default: 5) </i>
+                    </label>
+                    <div class="col-md-6">
+                        {{ form.max_teaching_days }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label class="col-md-12 col-form-label">
+                        <strong>Justification for Constraints</strong> <br><i>(Required if you selected unavailable slots or limited teaching days)</i>
+                    </label>
+                    <div class="col-md-12">
+                        {{ form.justification }}
+                        {% if form.justification.errors %}
+                            <div class="text-danger">{{ form.justification.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr>
+                <button type="submit" class="btn btn-primary">Submit Special Requests</button>
+                <a href="{% url 'home' %}" class="btn btn-secondary">Back</a>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

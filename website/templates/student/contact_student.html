@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <br/>
+    <h2>Contact Another Student</h2>
+    <br/>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Send Message</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Select Student:</label>
+                    <div class="col-md-8">
+                        {{ form.recipient }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <label class="col-md-4 col-form-label">Message:</label>
+                    <div class="col-md-8">
+                        {{ form.message }}
+                    </div>
+                </div>
+                
+                <hr>
+                <button type="submit" class="btn btn-success">Send Message</button>
+                <a href="{% url 'view_allocations' %}" class="btn btn-secondary">Back</a>
+            </form>
+        </div>
+    </div>
+</div>
+<br/>
+{% endblock %}

@@ -1,0 +1,427 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="mb-4">Lab Allocation Dashboard</h1>
+
+<!-- Summary Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stats-card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Students</h5>
+                <h2 class="card-text">{{ stats.students_with_lab_load_met }} / {{ stats.total_students }}</h2>
+                <p class="text-muted">Students who have met their lab load</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Courses</h5>
+                <h2 class="card-text">{{ stats.total_courses }}</h2>
+                <p class="text-muted">Total number of courses</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Labs</h5>
+                <h2 class="card-text">{{ stats.assigned_labs }} / {{ stats.total_labs }}</h2>
+                <p class="text-muted">{{ stats.assignment_percentage }}% labs assigned</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Penalty Score</h5>
+                <h2 class="card-text">{{ penalty_score }}</h2>
+                <p class="text-muted">Current allocation penalty score</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Allocation Settings -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card weight-card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Allocation Weights</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_weights">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="odd_even_pair_weight" class="form-label">Odd/Even Pair Weight</label>
+                            <input type="number" class="form-control" id="odd_even_pair_weight" name="odd_even_pair_weight" value="{{ weights.odd_even_pair_weight }}" min="0" max="100">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="course_variety_weight" class="form-label">Minimise Course Variety Weight</label>
+                            <input type="number" class="form-control" id="course_variety_weight" name="course_variety_weight" value="{{ weights.course_variety_weight }}" min="0" max="100">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="preference_weight" class="form-label">Preference Weight</label>
+                            <input type="number" class="form-control" id="preference_weight" name="preference_weight" value="{{ weights.preference_weight }}" min="0" max="100">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="past_assignments_weight" class="form-label">Past Assignments Weight</label>
+                            <input type="number" class="form-control" id="past_assignments_weight" name="past_assignments_weight" value="{{ weights.past_assignments_weight }}" min="0" max="100">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                            <div class="col-md-6">
+                            <label for="workload_distribution_weight" class="form-label">Workload Distribution Weight</label>
+                            <input type="number" class="form-control" id="workload_distribution_weight" name="workload_distribution_weight" value="{{ weights.workload_distribution_weight }}" min="0" max="100">
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <label for="permutation_count" class="form-label">Permutation Count</label>
+                        <input type="number" class="form-control" id="permutation_count" name="permutation_count" value="{{ weights.permutation_count }}" min="1" max="1000">
+                        <small class="text-muted">Higher values may improve allocation quality but increase processing time</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Weights</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card instructions-card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Allocation Options</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    You have two options for lab allocation:
+                </p>
+                <ol>
+                    <li>
+                        <strong>Manual + Auto:</strong> Manually assign specific labs to students first, then let the system complete the remaining assignments.
+                    </li>
+                    <li>
+                        <strong>Auto + Edit:</strong> Let the system do the automatic allocation first, then edit or add allocations as needed.
+                    </li>
+                </ol>
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="auto_allocate">
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="clear_existing" name="clear_existing" value="true">
+                        <label class="form-check-label" for="clear_existing">Clear existing assignments before allocation</label>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">Run Automatic Allocation</button>
+                        <a href="{% url 'edit_allocation' %}" class="btn btn-outline-primary">Go to Manual Allocation</a>
+                        <button type="submit" class="btn btn-danger" name="action" value="clear_assignments">Clear All Assignments</button>
+                    </div>
+                </form>
+                <hr class="my-4">
+                <form method="post" action="{% url 'confirm_and_notify_students' %}" onsubmit="return confirm('This will notify all students about their assignments. Are you sure all allocations are finalized?');">
+                    {% csrf_token %}
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-envelope"></i> Confirm Allocations & Notify Students
+                        </button>
+                    </div>
+                    <small class="text-muted mt-2">
+                        <i class="bi bi-info-circle"></i> This will email all students with their assignments and cannot be undone.
+                    </small>
+                </form> 
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Allocation Results -->
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Allocation Results</h5>
+    </div>
+    <div class="card-body">
+        <!-- Edit button and Tabs -->
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-end gap-2"> <!-- Added gap-2 for spacing -->
+                    <a href="{% url 'edit_allocation' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil"></i> Edit Allocations
+                    </a>
+                    <a href="{% url 'export_allocations' %}" class="btn btn-outline-success">
+                        <i class="bi bi-download"></i> Export Allocations
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs" id="resultsTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if active_tab == 'student' %}active{% endif %}" id="student-tab" data-bs-toggle="tab" data-bs-target="#student-view" type="button" role="tab" aria-controls="student-view" aria-selected="{% if active_tab == 'student' %}true{% else %}false{% endif %}">Student View</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if active_tab == 'course' %}active{% endif %}" id="course-tab" data-bs-toggle="tab" data-bs-target="#course-view" type="button" role="tab" aria-controls="course-view" aria-selected="{% if active_tab == 'course' %}true{% else %}false{% endif %}">Course View</button>
+            </li>
+        </ul>
+        <div class="tab-content mt-3" id="resultsTabContent">
+            <!-- Student View -->
+            <div class="tab-pane fade {% if active_tab == 'student' %}show active{% endif %}" id="student-view" role="tabpanel" aria-labelledby="student-tab">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="studentTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Student</th>
+                                <th>Total Workload</th>
+                                <th>Lab Load</th>
+                                <th>Assigned Labs</th>
+                                <th>Course</th>
+                                <th>Group</th>
+                                <th>Day</th>
+                                <th>Time</th>
+                                <th>Venue</th>
+                                <th>Teaching Weeks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in student_assignments %}
+                                {% if student.assignments %}
+                                    {% for assignment in student.assignments %}
+                                        {% if forloop.first %}
+                                        <tr class="student-row" data-student="{{ student.student.name }}" data-course="{{ assignment.course_lab.code.code }}" data-day="{{ assignment.course_lab.day }}" data-venue="{{ assignment.course_lab.venue }}">
+                                            <td rowspan="{{ student.assignments|length }}" class="align-middle bg-light">
+                                                <strong>{{ student.student.name }}</strong>
+                                            </td>
+                                            <td rowspan="{{ student.assignments|length }}" class="align-middle bg-light">{{ student.total_workload }}</td>
+                                            <td rowspan="{{ student.assignments|length }}" class="align-middle bg-light">{{ student.lab_load }}</td>
+                                            <td rowspan="{{ student.assignments|length }}" class="align-middle bg-light {% if student.assigned_labs < student.lab_load %}text-danger{% endif %}">
+                                                {{ student.assigned_labs }}
+                                            </td>
+                                            
+                                            <td><span class="badge bg-primary">{{ assignment.course_lab.code.code }}</span></td>
+                                            <td>{{ assignment.course_lab.group }}</td>
+                                            <td>{{ assignment.course_lab.day }}</td>
+                                            <td>{{ assignment.course_lab.time }}</td>
+                                            <td>{{ assignment.course_lab.venue }}</td>
+                                            <td>
+                                                {% for week in assignment.course_lab.teaching_week %}
+                                                    {{ week }}{% if not forloop.last %}, {% endif %}
+                                                {% empty %}
+                                                    No Teaching Weeks
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr class="student-row" data-student="{{ student.student.name }}" data-course="{{ assignment.course_lab.code.code }}" data-day="{{ assignment.course_lab.day }}" data-venue="{{ assignment.course_lab.venue }}">
+                                            <td><span class="badge bg-primary">{{ assignment.course_lab.code.code }}</span></td>
+                                            <td>{{ assignment.course_lab.group }}</td>
+                                            <td>{{ assignment.course_lab.day }}</td>
+                                            <td>{{ assignment.course_lab.time }}</td>
+                                            <td>{{ assignment.course_lab.venue }}</td>
+                                            <td>
+                                                {% for week in assignment.course_lab.teaching_week %}
+                                                    {{ week }}{% if not forloop.last %}, {% endif %}
+                                                {% empty %}
+                                                    No Teaching Weeks
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                <tr class="student-row" data-student="{{ student.student.name }}">
+                                    <td>{{ student.student.name }}</td>
+                                    <td>{{ student.total_workload }}</td>
+                                    <td>{{ student.lab_load }}</td>
+                                    <td class="{% if student.assigned_labs < student.lab_load %}text-danger{% endif %}">{{ student.assigned_labs }}</td>
+                                    <td colspan="6" class="text-center text-muted"><em>No assignments</em></td>
+                                </tr>
+                                {% endif %}
+                            {% empty %}
+                            <tr>
+                                <td colspan="10" class="text-center">No student assignments found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                {% if student_assignments.paginator.num_pages > 1 %}
+                <nav aria-label="Student pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if student_assignments.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?student_page=1&tab=student" aria-label="First">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?student_page={{ student_assignments.previous_page_number }}&tab=student" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for i in student_assignments.paginator.page_range %}
+                            {% if i == student_assignments.number %}
+                            <li class="page-item active"><a class="page-link" href="?student_page={{ i }}&tab=student">{{ i }}</a></li>
+                            {% elif i > student_assignments.number|add:'-3' and i < student_assignments.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?student_page={{ i }}&tab=student">{{ i }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if student_assignments.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?student_page={{ student_assignments.next_page_number }}&tab=student" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?student_page={{ student_assignments.paginator.num_pages }}&tab=student" aria-label="Last">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+            
+            <!-- Course View -->
+            <div class="tab-pane fade {% if active_tab == 'course' %}show active{% endif %}" id="course-view" role="tabpanel" aria-labelledby="course-tab">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Course</th>
+                                <th>Total</th>
+                                <th>Group</th>
+                                <th>Day</th>
+                                <th>Time</th>
+                                <th>Venue</th>
+                                <th>Teaching Weeks</th>
+                                <th>Student</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for course in course_assignments %}
+                            {% for lab in course.labs %}
+                            {% if forloop.first %}
+                            <tr>
+                                <td rowspan="{{ course.labs|length }}" class="align-middle bg-light">
+                                    <strong>{{ course.course.code }}</strong><br>
+                                    {{ course.course.title }}
+                                </td>
+                                <td rowspan="{{ course.labs|length }}" class="align-middle bg-light">{{ course.total }}</td>
+                                <td>{{ lab.group }}</td>
+                                <td>{{ lab.day }}</td>
+                                <td>{{ lab.time }}</td>
+                                <td>{{ lab.venue }}</td>
+                                <td>{{ lab.teaching_weeks|join:", " }}</td>
+                                <td>
+                                    {% if lab.student %}
+                                    <span class="badge bg-success">{{ lab.student.name }}</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Not assigned</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td>{{ lab.group }}</td>
+                                <td>{{ lab.day }}</td>
+                                <td>{{ lab.time }}</td>
+                                <td>{{ lab.venue }}</td>
+                                <td>{{ lab.teaching_weeks|join:", " }}</td>
+                                <td>
+                                    {% if lab.student %}
+                                    <span class="badge bg-success">{{ lab.student.name }}</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Not assigned</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                            {% empty %}
+                            <tr>
+                                <td colspan="9" class="text-center">No course assignments found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                {% if course_assignments.paginator.num_pages > 1 %}
+                <nav aria-label="Course pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if course_assignments.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?course_page=1&tab=course" aria-label="First">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?course_page={{ course_assignments.previous_page_number }}&tab=course" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for i in course_assignments.paginator.page_range %}
+                            {% if i == course_assignments.number %}
+                            <li class="page-item active"><a class="page-link" href="?course_page={{ i }}&tab=course">{{ i }}</a></li>
+                            {% elif i > course_assignments.number|add:'-3' and i < course_assignments.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?course_page={{ i }}&tab=course">{{ i }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if course_assignments.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?course_page={{ course_assignments.next_page_number }}&tab=course" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?course_page={{ course_assignments.paginator.num_pages }}&tab=course" aria-label="Last">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    // Activate the correct tab based on URL parameter
+    document.addEventListener('DOMContentLoaded', function() {
+        var activeTab = '{{ active_tab }}';
+        var triggerEl = document.querySelector('#resultsTabs button[data-bs-target="#' + activeTab + '-view"]');
+        if (triggerEl) {
+            new bootstrap.Tab(triggerEl).show();
+        }
+        
+        // Add listener for tab changes
+        var tabEls = document.querySelectorAll('#resultsTabs button');
+        tabEls.forEach(function(tabEl) {
+            tabEl.addEventListener('shown.bs.tab', function(event) {
+                var targetId = event.target.getAttribute('data-bs-target').substring(1);
+                var tab = targetId.split('-')[0];
+                var currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('tab', tab);
+                window.history.replaceState({}, '', currentUrl);
+            });
+        });
+</script>
+{% endblock %}

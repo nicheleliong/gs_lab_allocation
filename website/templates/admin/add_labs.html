@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <!--Option 1: Bulk Insert from Excel File-->
+  <div class="card mb-4">
+    <div class="card-header">
+        <h4>Bulk Insert from Excel File</h4>
+    </div>
+    <div class="card-body">
+        <p class="card-text">
+        Please follow the following instructions carefully:
+        </p>
+        <ul>
+        <li><strong>Step 1</strong>: In an <strong>Excel File</strong>, create and <strong>rename the sheet</strong> to be the <strong>course code</strong> for each course that you would like to upload lab schedules for</li>
+        <li><strong>Step 2</strong>: Copy-paste the class schedule table (including headers) directly from <strong>NTU Class Schedule Portal/STARS</strong></li>
+        <li><strong>Step 3</strong>: Ensure that the <strong>top row</strong> consists of the fields -- <i>TYPE, GROUP, DAY, TIME, VENUE, REMARK </i></li>
+        <li><strong>Step 4</strong>: <strong>Upload</strong> this Excel file in the field below, and press the 'Upload' button to import the schedules</li>
+        </ul>
+        <p class="card-text">
+        <strong>Notes:</strong> 
+        </p>
+        <ul>
+        <li>You may check and edit the successfully imported lab schedules in the Course information from <u>Course Overview</u> page.</li>
+        <li>This tool only handles the <u>LAB</u> class information.</li>
+        <li>The name of your file does not matter.</li>
+        <li>The sheet will be <u>ignored</u> if the course has not been added into the database at the time of this bulk-import.</li>
+        <li>The sheet name should correspond to the <u>1st course code</u> in the database. (e.g SC1005/CE1105/CZ1105: name your sheet SC1005)</li>
+        </ul>
+        <p class="card-text text-danger">
+        ⚠️ Wrong formats will result in the system's inability to import the data.
+        </p>
+        <hr>
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit">Upload</button>
+        </form>
+    </div>
+  </div>
+{% endblock %}
